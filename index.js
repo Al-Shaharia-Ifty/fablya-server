@@ -197,11 +197,13 @@ async function run() {
     });
 
     /*---- all delete ----*/
+
+    /*---- end ----*/
   } finally {
   }
 }
 
-run();
+run().catch();
 
 app.get("/", (req, res) => {
   res.send("server is running");

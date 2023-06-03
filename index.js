@@ -38,6 +38,7 @@ async function run() {
   try {
     const productCollection = client.db("Fablya").collection("products");
     const userCollection = client.db("Fablya").collection("users");
+    const cartCollection = client.db("Fablya").collection("cart");
 
     // verify Member check
     const verifyMember = async (req, res, next) => {
@@ -179,10 +180,32 @@ async function run() {
       res.send(user);
     });
 
+    // get user cart
+    app.get("/user_cart", verifyJWT, verifyMember, async (req, res) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+
     /*---- all post ----*/
 
     /*---- all put ----*/
 
+    // add to cart
+    app.put("/addToCart/:id", verifyJWT, verifyMember, async (req, res) => {
+      const productID = req.params.id;
+      const cartInfo = req.body;
+      const filter = { productID: productID };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: cartInfo,
+      };
+      const result = await cartCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    // update user info
     app.put("/updateUserInfo", verifyJWT, verifyMember, async (req, res) => {
       const email = req.decoded.email;
       const userInfo = req.body;
